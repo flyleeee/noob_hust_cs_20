@@ -1,0 +1,7 @@
+ # 请将利用MySQL Workbench软件的Modeling工具，经forward engineering 导出的创建schema的SQL语句完整粘到此处：
+
+
+
+
+ 
+ 

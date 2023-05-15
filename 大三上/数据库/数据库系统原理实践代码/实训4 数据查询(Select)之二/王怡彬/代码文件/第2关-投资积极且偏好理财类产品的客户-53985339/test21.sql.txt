@@ -1,0 +1,16 @@
+  -- 2) 投资积极且偏好理财类产品的客户
+--   请用一条SQL语句实现该查询：
+select pro_c_id 
+from property p1
+where pro_type = 1
+group by pro_c_id
+having count(pro_pif_id) > 3 and count(pro_pif_id) > 
+(
+  select count(pro_pif_id)
+  from property p2
+  where pro_type = 3 and p1.pro_c_id = p2.pro_c_id
+)
+order by pro_c_id;
+
+
+/*  end  of  your code  */

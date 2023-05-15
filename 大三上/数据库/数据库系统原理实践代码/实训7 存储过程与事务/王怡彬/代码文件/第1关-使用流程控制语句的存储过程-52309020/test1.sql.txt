@@ -1,0 +1,38 @@
+use fib;
+
+-- 创建存储过程`sp_fibonacci(in m int)`，向表fibonacci插入斐波拉契数列的前m项，及其对应的斐波拉契数。fibonacci表初始值为一张空表。请保证你的存储过程可以多次运行而不出错。
+
+drop procedure if exists sp_fibonacci;
+delimiter $$
+create procedure sp_fibonacci(in m int)
+begin
+-- 创建存储过程 sp_fibonacci，接受一个 int 类型的输入参数 m
+    -- 将 m 的值减 1
+    set m = m - 1;
+    
+    -- 使用递归查询语句，构造斐波那契数列
+    -- 定义递归查询初始值为 (0, 0, 0)，id 表示数列索引，cur 和 pre 分别表示当前值和前一个值
+    with recursive cte (id, cur, pre) as 
+    (
+        -- 初始值
+        select
+            0, 0, 0
+        -- 递归查询
+        union all 
+        select 
+            id + 1, -- 数列索引值加 1
+            -- 当前值等于 1，当 id 小于 2；否则，等于 cur + pre
+            if (id < 2, 1, cur + pre),
+            cur -- 前一个值等于当前值
+        from cte 
+        where id < m -- 条件：数列索引小于 m
+    ) 
+    select 
+        id n,
+        cur fibn
+    from cte;
+end $$
+
+delimiter ;
+
+ 

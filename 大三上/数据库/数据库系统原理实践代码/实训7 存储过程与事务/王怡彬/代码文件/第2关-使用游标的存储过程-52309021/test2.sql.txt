@@ -1,0 +1,58 @@
+-- 编写一存储过程，自动安排某个连续期间的大夜班的值班表:
+
+delimiter $$
+create procedure sp_night_shift_arrange(in start_date date, in end_date date)
+begin
+    declare wkd, done, typ int default false;
+    declare doctor, nurse1, nurse2, h char(30);
+    declare cur1 cursor for select e_name from employee where e_type = 3;
+    declare cur2 cursor for select e_type, e_name from employee where e_type < 3;
+    declare continue handler for not found set done = true;
+    open cur1;
+    open cur2;
+    while start_date <= end_date do
+        fetch cur1 into nurse1;
+        if done then
+            close cur1;
+            open cur1;
+            set done = false;
+            fetch cur1 into nurse1;
+        end if;
+        fetch cur1 into nurse2;
+        if done then
+            close cur1;
+            open cur1;
+            set done = false;
+            fetch cur1 into nurse2;
+        end if;
+        set wkd = weekday(start_date);
+        if wkd = 0 and h is not null then
+            set doctor = h;
+            set h = null;
+        else
+            fetch cur2 into typ, doctor;
+            if done then
+                close cur2;
+                open cur2;
+                set done = false;
+                fetch cur2 into typ, doctor;
+            end if;
+            if wkd > 4 and typ = 1 then
+                set h = doctor;
+                fetch cur2 into typ, doctor;
+                if done then
+                    close cur2;
+                    open cur2;
+                    set done = false;
+                    fetch cur2 into typ, doctor;
+                end if;
+            end if;
+        end if;
+        insert into night_shift_schedule values (start_date, doctor, nurse1, nurse2);
+        set start_date = date_add(start_date, interval 1 day);
+    end while;
+end$$
+
+delimiter ;
+
+/*  end  of  your code  */
